@@ -1,0 +1,5 @@
+Hello there!
+Welcome to the C++ File Compressor project.
+This file contains several characters, some repeating more than others.
+For example, the letter 'e' is very common, while 'z' and 'q' are rare.
+Let's see if the compressor can count these lines correctly!
