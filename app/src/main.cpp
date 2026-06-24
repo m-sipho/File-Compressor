@@ -16,5 +16,13 @@ int main(int argc, char* argv[]) {
 	FileHandler fileHandler;
 	fileHandler.readAndPrint(filePath);
 	cout << "\n--------------------------------\n";
+
+	auto frequencyMap = fileHandler.getCharacterFrequencies(filePath);
+
+	cout << "--- Character Frequencies ---\n";
+	for (const auto& pair : frequencyMap) {
+		
+		cout << "'" << pair.first << "' : " << pair.second << endl;
+	}
 	return 0;
 }
