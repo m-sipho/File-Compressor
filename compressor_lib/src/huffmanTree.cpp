@@ -38,3 +38,7 @@ void HuffmanTree::buildTree(const std::unordered_map<char, int>& frequencies) {
 		root = frequencyQueue.top();
 	}
 }
+
+Node* HuffmanTree::getRootNode() {
+	return root;
+}
