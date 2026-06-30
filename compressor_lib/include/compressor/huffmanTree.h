@@ -19,7 +19,7 @@ struct CompareNodes {
 class HuffmanTree {
 public:
 	Node* createNode(char ch, int freq, Node* left = nullptr, Node* right = nullptr);
-	Node* buildTree(const std::unordered_map<char, int>& frequencies);
+	void buildTree(const std::unordered_map<char, int>& frequencies);
 	Node* getRootNode();
 
 private:
