@@ -42,3 +42,28 @@ void HuffmanTree::buildTree(const std::unordered_map<char, int>& frequencies) {
 Node* HuffmanTree::getRootNode() {
 	return root;
 }
+
+void HuffmanTree::generateCompressedBinaryCodes() {
+	compressedBinaryCodes.clear();
+
+	if (root != nullptr) {
+		generateCompressedBinaryCodesHelper(root, "");
+	}
+}
+
+void HuffmanTree::generateCompressedBinaryCodesHelper(Node* node, std::string currentCode) {
+	// Check if we fall out of the tree
+	if (node == nullptr) {
+		return;
+	}
+
+	// Base case
+	if (node->character != '\0') {
+		compressedBinaryCodes[node->character] = currentCode;
+		return;
+	}
+
+	// Recursive case
+	generateCompressedBinaryCodesHelper(node->left, currentCode + "0"); // Add "0" when going to the left
+	generateCompressedBinaryCodesHelper(node->right, currentCode + "1"); // Add "1" when going to the right
+}

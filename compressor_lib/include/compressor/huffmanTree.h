@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <unordered_map>
 #include <queue>
 #include <vector>
@@ -22,6 +23,12 @@ public:
 	void buildTree(const std::unordered_map<char, int>& frequencies);
 	Node* getRootNode();
 
+	void generateCompressedBinaryCodes();
+	std::unordered_map<char, std::string> getCompressedBinaryCodes()
+
 private:
 	Node* root;
+	std::unordered_map<char, std::string> compressedBinaryCodes;
+
+	void generateCompressedBinaryCodesHelper(Node* node, std::string currentCode);
 };
