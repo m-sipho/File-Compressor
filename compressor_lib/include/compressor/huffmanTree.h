@@ -24,7 +24,7 @@ public:
 	Node* getRootNode();
 
 	void generateCompressedBinaryCodes();
-	std::unordered_map<char, std::string> getCompressedBinaryCodes()
+	std::unordered_map<char, std::string> getCompressedBinaryCodes();
 
 private:
 	Node* root;
