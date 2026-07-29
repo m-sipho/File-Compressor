@@ -67,3 +67,7 @@ void HuffmanTree::generateCompressedBinaryCodesHelper(Node* node, std::string cu
 	generateCompressedBinaryCodesHelper(node->left, currentCode + "0"); // Add "0" when going to the left
 	generateCompressedBinaryCodesHelper(node->right, currentCode + "1"); // Add "1" when going to the right
 }
+
+std::unordered_map<char, std::string> HuffmanTree::getCompressedBinaryCodes() {
+	return compressedBinaryCodes;
+}
