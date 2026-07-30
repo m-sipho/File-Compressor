@@ -8,4 +8,6 @@ public:
 	void readAndPrint(const std::string& filePath);
 
 	std::unordered_map<char, int> getCharacterFrequencies(const std::string& filePath);
+
+	void writeCompressedFile(const std::string& inputPath, const std::string& outputPath, const std::unordered_map<char, std::string>& compressedCodes, const std::unordered_map<char, int>& frequencies);
 };
