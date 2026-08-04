@@ -9,5 +9,5 @@ public:
 
 	std::unordered_map<char, int> getCharacterFrequencies(const std::string& filePath);
 
-	void writeCompressedFile(const std::string& inputPath, const std::string& outputPath, const std::unordered_map<char, std::string>& compressedCodes, const std::unordered_map<char, int>& frequencies);
+	void writeCompressedFile(const std::string& inputFile, const std::string& outputFile, const std::unordered_map<char, std::string>& compressedCodes, const std::unordered_map<char, int>& frequencies);
 };
