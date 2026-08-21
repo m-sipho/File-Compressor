@@ -13,6 +13,9 @@ struct Node {
 
 struct CompareNodes {
 	bool operator()(Node* leftNode, Node* rightNode) {
+		if (leftNode->frequency == rightNode->frequency) {
+			return leftNode->character > rightNode->character;
+		}
 		return leftNode->frequency > rightNode->frequency;
 	}
 };
