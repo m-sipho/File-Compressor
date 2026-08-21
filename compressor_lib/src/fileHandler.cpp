@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include "compressor/fileHandler.h"
+#include "compressor/huffmanTree.h"
 
 void FileHandler::readAndPrint(const std::string& filePath) {
 	std::ifstream file(filePath);
@@ -59,7 +60,7 @@ void FileHandler::writeCompressedFile(const std::string& inputFile, const std::s
 	std::ofstream outFile(outputFile, std::ios::binary);
 
 	if (!inFile || !outFile) {
-		std::cerr << "Error opening files for compresion" << std::endl;
+		std::cerr << "Error opening files for compression" << std::endl;
 		return;
 	}
 
@@ -105,4 +106,85 @@ void FileHandler::writeCompressedFile(const std::string& inputFile, const std::s
 
 	inFile.close();
 	outFile.close();
+}
+
+void FileHandler::decompressFile(const std::string& compressedFilePath, const std::string& outputFile) {
+	std::ifstream inFile(compressedFilePath, std::ios::binary);
+	std::ofstream outFile(outputFile, std::ios::binary);
+
+	if (!inFile || !outFile) {
+		std::cerr << "Error opening files for decompression." << std::endl;
+		return;
+	}
+
+	// Read the header
+	size_t mapSize = 0;
+	inFile.read(reinterpret_cast<char*>(&mapSize), sizeof(mapSize));
+
+	std::unordered_map<char, int> frequencies;
+	long long totalCharacters = 0;
+
+	for (size_t i = 0; i < mapSize; i++) {
+		char character;
+		int frequency;
+
+		inFile.read(reinterpret_cast<char*>(&character), sizeof(character));
+		inFile.read(reinterpret_cast<char*>(&frequency), sizeof(frequency));
+
+		frequencies[character] = frequency;
+		totalCharacters += frequency;
+	}
+
+	// Rebuild the Huffman Tree
+	HuffmanTree tree;
+	tree.buildTree(frequencies);
+
+	tree.generateCompressedBinaryCodes();
+	auto compressedBinaryCodes = tree.getCompressedBinaryCodes();
+
+	std::cout << "===== Huffman Tree Codes on Compression =====" << std::endl;
+	for (const auto& pair : compressedBinaryCodes) {
+		std::cout << "'" << pair.first << "' : " << pair.second << std::endl;
+	}
+
+	Node* currentNode = tree.getRootNode();
+	if (!currentNode) {
+		std::cerr << "Error: Huffman tree is empty" << std::endl;
+		return;
+	}
+
+	long long decodedCount = 0;
+	unsigned char buffer;
+
+	while (inFile.read(reinterpret_cast<char*>(&buffer), sizeof(buffer))) {
+		for (int i = 7; i >= 0; i--) {
+			if (decodedCount >= totalCharacters) {
+				break;
+			}
+
+			int bit = (buffer >> i) & 1;
+
+			if (bit == 0) {
+				currentNode = currentNode->left;
+			}
+			else {
+				currentNode = currentNode->right;
+			}
+
+			if (currentNode->left == nullptr && currentNode->right == nullptr) {
+				outFile.write(&currentNode->character, sizeof(currentNode->character));
+
+				currentNode = tree.getRootNode();
+			}
+		}
+
+		if (decodedCount >= totalCharacters) {
+			break;
+		}
+	}
+
+	inFile.close();
+	outFile.close();
+
+	std::cout << "File successfully decompressed at " << outputFile << std::endl;
 }
