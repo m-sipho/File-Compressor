@@ -2,6 +2,8 @@
 #include <fstream>
 #include "compressor/fileHandler.h"
 #include "compressor/huffmanTree.h"
+#include <vector>
+#include <algorithm>
 
 void FileHandler::readAndPrint(const std::string& filePath) {
 	std::ifstream file(filePath);
@@ -29,7 +31,7 @@ void FileHandler::readAndPrint(const std::string& filePath) {
 	file.close();
 }
 
-std::unordered_map<char, int> FileHandler::getCharacterFrequencies(const std::string& filePath) {
+std::vector<std::pair<char, int>> FileHandler::getCharacterFrequencies(const std::string& filePath) {
 
 	std::unordered_map<char, int> frequencies;
 
@@ -38,7 +40,7 @@ std::unordered_map<char, int> FileHandler::getCharacterFrequencies(const std::st
 
 	if (!file) {
 		std::cerr << "ERROR: Failed to open '" << filePath << std::endl;
-		return frequencies; // Return the empty map
+		return {}; // Return the empty vector
 	}
 
 	char character;
@@ -50,8 +52,13 @@ std::unordered_map<char, int> FileHandler::getCharacterFrequencies(const std::st
 		std::cerr << "ERROR: An I/O error occured while reading the file" << std::endl;
 	}
 
+	std::vector<std::pair<char, int>> sortedFrequencies(frequencies.begin(), frequencies.end());
+	std::sort(sortedFrequencies.begin(), sortedFrequencies.end(), [](const auto& a, const auto& b) {
+		return a.first < b.first;
+		});
+
 	file.close();
-	return frequencies;
+	return sortedFrequencies;
 }
 
 void FileHandler::writeCompressedFile(const std::string& inputFile, const std::string& outputFile, const std::unordered_map<char, std::string>& compressedCodes, const std::unordered_map<char, int>& frequencies) {
@@ -68,8 +75,13 @@ void FileHandler::writeCompressedFile(const std::string& inputFile, const std::s
 	size_t mapSize = frequencies.size();
 	outFile.write(reinterpret_cast<const char*>(&mapSize), sizeof(mapSize));
 
+	std::vector<std::pair<char, int>> sortedFrequencies(frequencies.begin(), frequencies.end());
+	std::sort(sortedFrequencies.begin(), sortedFrequencies.end(), [](const auto& a, const auto& b) {
+		return a.first < b.first;
+		});
+
 	// Then write each character and it's integer count
-	for (const auto& pair : frequencies) {
+	for (const auto& pair : sortedFrequencies) {
 		outFile.write(&pair.first, sizeof(pair.first));
 		outFile.write(reinterpret_cast<const char*>(&pair.second), sizeof(pair.second));
 	}
@@ -121,7 +133,8 @@ void FileHandler::decompressFile(const std::string& compressedFilePath, const st
 	size_t mapSize = 0;
 	inFile.read(reinterpret_cast<char*>(&mapSize), sizeof(mapSize));
 
-	std::unordered_map<char, int> frequencies;
+	// std::unordered_map<char, int> frequencies;
+	std::vector<std::pair<char, int>> sortedFrequencies;
 	long long totalCharacters = 0;
 
 	for (size_t i = 0; i < mapSize; i++) {
@@ -131,21 +144,26 @@ void FileHandler::decompressFile(const std::string& compressedFilePath, const st
 		inFile.read(reinterpret_cast<char*>(&character), sizeof(character));
 		inFile.read(reinterpret_cast<char*>(&frequency), sizeof(frequency));
 
-		frequencies[character] = frequency;
+		// frequencies[character] = frequency;
+		sortedFrequencies.push_back({ character, frequency });
 		totalCharacters += frequency;
 	}
 
+	std::sort(sortedFrequencies.begin(), sortedFrequencies.end(), [](const auto& a, const auto& b) {
+		return a.first < b.first;
+		});
+
 	// Rebuild the Huffman Tree
 	HuffmanTree tree;
-	tree.buildTree(frequencies);
+	tree.buildTree(sortedFrequencies);
 
 	tree.generateCompressedBinaryCodes();
 	auto compressedBinaryCodes = tree.getCompressedBinaryCodes();
 
-	std::cout << "===== Huffman Tree Codes on Compression =====" << std::endl;
-	for (const auto& pair : compressedBinaryCodes) {
-		std::cout << "'" << pair.first << "' : " << pair.second << std::endl;
-	}
+	//std::cout << "===== Huffman Tree Codes on Compression =====" << std::endl;
+	//for (const auto& pair : compressedBinaryCodes) {
+	//	std::cout << "'" << pair.first << "' : " << pair.second << std::endl;
+	//}
 
 	Node* currentNode = tree.getRootNode();
 	if (!currentNode) {

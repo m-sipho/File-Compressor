@@ -10,7 +10,7 @@ Node* HuffmanTree::createNode(char ch, int freq, Node* left, Node* right) {
 	return newNode;
 }
 
-void HuffmanTree::buildTree(const std::unordered_map<char, int>& frequencies) {
+void HuffmanTree::buildTree(const std::vector<std::pair<char, int>>& frequencies) {
 	std::priority_queue<Node*, std::vector<Node*>, CompareNodes> frequencyQueue;
 
 	for (const auto& pair : frequencies) {
